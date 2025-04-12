@@ -279,7 +279,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1333, 800),
+        img_scale=(800, 1333),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -291,12 +291,30 @@ test_pipeline = [
         ])
 ]
 
+data_root = 'datasets/paste_birds/'
+val_root = 'datasets/SMOT4SB/'
+dataset_type = 'CocoDataset'
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
-    train=dict(filter_empty_gt=False, pipeline=train_pipeline),
-    val=dict(pipeline=test_pipeline),
-    test=dict(pipeline=test_pipeline))
+    train=dict(
+        type=dataset_type,
+        filter_empty_gt=False, 
+        pipeline=train_pipeline,
+        ann_file=data_root + 'annotations/train.json',
+        img_prefix=data_root + 'train/',
+    ),
+    val=dict(
+        pipeline=test_pipeline,
+        ann_file=val_root + 'annotations/val.json',
+        img_prefix=val_root + 'val/',
+    ),
+    test=dict(
+        pipeline=test_pipeline,
+        ann_file=val_root + 'annotations/val.json',
+        img_prefix=val_root + 'val/',
+    ))
+evaluation = dict(interval=25, metric='bbox')
 # optimizer
 optimizer = dict(
     type='AdamW',

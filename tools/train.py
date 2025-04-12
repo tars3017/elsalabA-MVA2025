@@ -2,6 +2,10 @@
 import argparse
 import copy
 import os
+import sys
+sys.path.append('/media/Pluto/tars3017/Co-DETR')  # Replace incorrect os.add_path
+sys.path.append('/media/Pluto/tars3017/Co-DETR/mmdet')  # Replace incorrect os.add_path
+print(sys.path)
 import os.path as osp
 import time
 import warnings
@@ -243,3 +247,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

@@ -21,5 +21,5 @@ model = dict(
 
 # optimizer
 optimizer = dict(weight_decay=0.05)
-lr_config = dict(policy='step', step=[30])
-runner = dict(type='EpochBasedRunner', max_epochs=36)
+lr_config = dict(policy='step', step=[20])
+runner = dict(type='EpochBasedRunner', max_epochs=50)

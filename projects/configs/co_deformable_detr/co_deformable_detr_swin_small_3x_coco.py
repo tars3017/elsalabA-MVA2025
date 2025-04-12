@@ -20,6 +20,10 @@ model = dict(
     neck=dict(in_channels=[96*2, 96*4, 96*8]))
 
 # optimizer
-optimizer = dict(weight_decay=0.05)
-lr_config = dict(policy='step', step=[30])
-runner = dict(type='EpochBasedRunner', max_epochs=36)
+optimizer = dict(
+    lr=2e-6,
+    weight_decay=0.05
+)
+lr_config = dict(policy='step', step=[20])
+runner = dict(type='EpochBasedRunner', max_epochs=50)
+load_from = '0313/small_50.pth'

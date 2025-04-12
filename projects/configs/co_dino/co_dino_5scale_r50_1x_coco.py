@@ -247,10 +247,7 @@ train_pipeline = [
             [
                 dict(
                     type='Resize',
-                    img_scale=[(480, 1333), (512, 1333), (544, 1333),
-                               (576, 1333), (608, 1333), (640, 1333),
-                               (672, 1333), (704, 1333), (736, 1333),
-                               (768, 1333), (800, 1333)],
+                    img_scale=[(640, 640)],
                     multiscale_mode='value',
                     keep_ratio=True)
             ],
@@ -259,20 +256,18 @@ train_pipeline = [
                     type='Resize',
                     # The radio of all image in train dataset < 7
                     # follow the original impl
-                    img_scale=[(400, 4200), (500, 4200), (600, 4200)],
+                    img_scale=[(640, 640)],
                     multiscale_mode='value',
                     keep_ratio=True),
                 dict(
                     type='RandomCrop',
                     crop_type='absolute_range',
-                    crop_size=(384, 600),
+                    crop_size=(640, 640),
+                    recompute_bbox=True,
                     allow_negative_crop=True),
                 dict(
                     type='Resize',
-                    img_scale=[(480, 1333), (512, 1333), (544, 1333),
-                               (576, 1333), (608, 1333), (640, 1333),
-                               (672, 1333), (704, 1333), (736, 1333),
-                               (768, 1333), (800, 1333)],
+                    img_scale=[(640, 640)],
                     multiscale_mode='value',
                     override=True,
                     keep_ratio=True)
@@ -290,7 +285,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1333, 800),
+        img_scale=(640, 640),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),

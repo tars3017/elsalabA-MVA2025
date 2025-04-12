@@ -1,0 +1,81 @@
+name: CI with uv
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**.ipynb"
+      - "**.cff"
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**.ipynb"
+      - "**.cff"
+
+  schedule:
+    - cron: "0 0 * * *" # Runs at 00:00 UTC every day
+
+  workflow_dispatch: # allow running sync via github ui button
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup uv python package manager
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          prune-cache: false
+      # For python 3.8 and 3.9, it does no suffice to install opencv-python-headless
+      # https://itsmycode.com/importerror-libgl-so-1-cannot-open-shared-object-file-no-such-file-or-directory/
+      - name: Cache apt packages
+        uses: actions/cache@v4
+        if: ${{ env.ACT }}
+        with:
+          path: /var/cache/apt
+          key: apt-cache
+      - name: Install libgl
+        run: sudo apt-get update && sudo apt-get install -y libgl1
+      - name: Setup dependencies
+        run: uv sync
+      - name: Install sahi from PyPI
+        if: github.event_name == 'schedule'
+        run: |
+          rm -fr sahi
+          uv pip install --force-reinstall sahi
+          uv pip show sahi
+          source .venv/bin/activate
+          python -c "import sahi; print(sahi.__version__)"
+      - name: Test with python ${{ matrix.python-version }}
+        run: |
+          source .venv/bin/activate
+          pytest --capture=no
+      - name: Test SAHI CLI
+        run: |
+          source .venv/bin/activate
+          set -e
+          sahi predict --no_sliced_prediction --model_type ultralytics --source tests/data/coco_utils/terrain1.jpg --novisual --model_path tests/data/models/ultralytics/yolo11n.pt --image_size 320
+          sahi predict --model_type ultralytics --source tests/data/ --novisual --model_path tests/data/models/ultralytics/yolo11n.pt --image_size 320
+          sahi predict --model_type ultralytics --source tests/data/coco_utils/terrain1.jpg --export_pickle --export_crop --model_path tests/data/models/ultralytics/yolo11n.pt --image_size 320
+          sahi predict --model_type ultralytics --source tests/data/coco_utils/ --novisual --dataset_json_path tests/data/coco_utils/combined_coco.json --model_path tests/data/models/ultralytics/yolo11n.pt --image_size 320
+          # coco yolov5
+          sahi coco yolov5 --image_dir tests/data/coco_utils/ --dataset_json_path tests/data/coco_utils/combined_coco.json --train_split 0.9
+          # coco evaluate
+          sahi coco evaluate --dataset_json_path tests/data/coco_evaluate/dataset.json --result_json_path tests/data/coco_evaluate/result.json
+          # coco analyse
+          sahi coco analyse --dataset_json_path tests/data/coco_evaluate/dataset.json --result_json_path tests/data/coco_evaluate/result.json --out_dir tests/data/coco_evaluate/
+      - name: Test SAHI CLI with MMCV
+        if: matrix.python-version != '3.12'
+        run: |
+          source .venv/bin/activate
+          set -e
+          sahi predict --model_type mmdet --source tests/data/ --novisual --model_path tests/data/models/mmdet/yolox/yolox_tiny_8x8_300e_coco_20211124_171234-b4047906.pth --model_config_path tests/data/models/mmdet/yolox/yolox_tiny_8xb8-300e_coco.py --image_size 320
+          sahi predict --model_type mmdet --source tests/data/coco_utils/terrain1.jpg --export_pickle --export_crop --model_path tests/data/models/mmdet/yolox/yolox_tiny_8x8_300e_coco_20211124_171234-b4047906.pth --model_config_path tests/data/models/mmdet/yolox/yolox_tiny_8xb8-300e_coco.py --image_size 320
+          sahi predict --model_type mmdet --source tests/data/coco_utils/ --novisual --dataset_json_path tests/data/coco_utils/combined_coco.json --model_path tests/data/models/mmdet/yolox/yolox_tiny_8x8_300e_coco_20211124_171234-b4047906.pth --model_config_path tests/data/models/mmdet/yolox/yolox_tiny_8xb8-300e_coco.py --image_size 320
