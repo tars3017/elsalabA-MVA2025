@@ -16,9 +16,10 @@ from typing import Any, List, Optional
 from mmdet.apis import init_detector, inference_detector
 
 co_detr_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(co_detr_path)
+sys.path.append(os.path.join(co_detr_path, 'Co-DETR'))
 sys.path.append(os.path.join(co_detr_path, 'Co-DETR', 'boxmot'))
 sys.path.append(os.path.join(co_detr_path, 'Co-DETR', 'sahi'))
+print(f"path = {co_detr_path}")
 from boxmot.trackers.botsort.botsort import BotSort
 from boxmot.trackers.boosttrack.boosttrack import BoostTrack
 from tracking.timer import Timer
@@ -30,9 +31,11 @@ from sahi.prediction import ObjectPrediction
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
 
-config_file = 'cropped_inference/co_dino_5scale_swin_large_3x_coco.py'
+# config_file = 'cropped_inference/co_dino_5scale_swin_large_3x_coco.py'
+config_file = 'cropped_inference/co_dino_5scale_vit_large_coco.py'
 # checkpoint_file = 'cropped/epoch_1.pth'
-checkpoint_file = 'cropped2/epoch_10.pth'
+# checkpoint_file = 'cropped3/epoch_2.pth'
+checkpoint_file = 'vit/epoch_1.pth'
 
 
 
@@ -83,8 +86,8 @@ class Predictor(object):
             prediction = get_sliced_prediction(
                 img_path,
                 self,
-                slice_height=1000,
-                slice_width=1000,
+                slice_height=1200,
+                slice_width=1200,
                 overlap_height_ratio=0.1,
                 overlap_width_ratio=0.1,
                 verbose=True,
@@ -157,7 +160,7 @@ class Predictor(object):
             for i in range(len(image)):
                 tmp = inference_detector(self.model, image[i])[0]
                 tmp = np.hstack((tmp, np.ones((tmp.shape[0], 1), dtype=int)))
-                tmp = np.pad(tmp, ((0, 300 - tmp.shape[0]), (0, 0)), mode='constant', constant_values=0)
+                tmp = np.pad(tmp, ((0, 1000 - tmp.shape[0]), (0, 0)), mode='constant', constant_values=0)
                 outputs.append(tmp)
         
         outputs = torch.from_numpy(np.array(outputs)).to(self.device)
@@ -356,7 +359,7 @@ def draw_top_boxes(image_path, prediction, output_path="output_with_boxes.jpg", 
 # draw_top_boxes(img, result, output_path="output_with_boxes.jpg", conf_thresh=0.2)
 
 def predict_videos(num_workers=20):
-    res_folder = 'tracking_outputs'
+    res_folder = 'tracking_vit'
     if not os.path.exists(res_folder):
         os.makedirs(res_folder)
     if not os.path.exists('verify'):
@@ -366,7 +369,8 @@ def predict_videos(num_workers=20):
     video_image_dict = get_video_image_dict('../DQ-DETR/data/pub_test')
 
     # def process_video(video_name, files):
-    for video_name, files in video_image_dict.items():
+    for video_name, files in dict(reversed(list(video_image_dict.items()))).items():
+    # for video_name, files in video_image_dict.items():
         # tracker = BotSort(
         #     reid_weights=Path("osnet_x0_25_msmt17.pt"),
         #     device=0,
@@ -383,8 +387,15 @@ def predict_videos(num_workers=20):
             reid_weights=Path("osnet_x0_25_msmt17.pt"),
             device=0,
             half=False,
-            det_thresh=0.1,
+            det_thresh=0.5,
             iou_threshold=0.1,
+            min_box_area=0,
+            aspect_ratio_thresh=10,
+
+            # haven't tried yet
+            # use_rich_s=True,
+            # use_sb=True,
+            # use_vt=True,
         )
     
         timer = Timer()
