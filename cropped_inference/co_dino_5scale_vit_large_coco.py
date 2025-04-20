@@ -163,7 +163,7 @@ data = dict(
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(1000, 1000),
+                img_scale=(1200, 1200),
                 flip=False,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),

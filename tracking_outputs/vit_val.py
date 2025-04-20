@@ -13,13 +13,12 @@ from pathlib import Path
 from loguru import logger
 from typing import Any, List, Optional
 
-from mmdet.apis import init_detector, inference_detector
 
 co_detr_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.join(co_detr_path, 'Co-DETR'))
 sys.path.append(os.path.join(co_detr_path, 'Co-DETR', 'boxmot'))
 sys.path.append(os.path.join(co_detr_path, 'Co-DETR', 'sahi'))
-print(f"path = {co_detr_path}")
+print(f"path = {sys.path}")
 from boxmot.trackers.botsort.botsort import BotSort
 from boxmot.trackers.boosttrack.boosttrack import BoostTrack
 from tracking.timer import Timer
@@ -27,6 +26,8 @@ from tracking.timer import Timer
 from sahi.predict import get_sliced_prediction
 from sahi.utils.compatibility import fix_full_shape_list, fix_shift_amount_list
 from sahi.prediction import ObjectPrediction
+
+from mmdet.apis import init_detector, inference_detector
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
@@ -400,7 +401,7 @@ def predict_videos(num_workers=20):
         timer = Timer()
         results = []
 
-        batch_size = 12
+        batch_size = 20
         batches = [files[i: i + batch_size] for i in range(0, len(files), batch_size)]
         for batch_idx, batch_files in enumerate(batches):
             batch_outputs = []
