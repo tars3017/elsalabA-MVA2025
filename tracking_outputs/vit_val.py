@@ -359,7 +359,7 @@ def draw_top_boxes(image_path, prediction, output_path="output_with_boxes.jpg", 
 
 # draw_top_boxes(img, result, output_path="output_with_boxes.jpg", conf_thresh=0.2)
 
-def predict_videos(num_workers=20):
+def predict_videos(args):
     res_folder = 'tracking_outputs'
     if not os.path.exists(res_folder):
         os.makedirs(res_folder)
@@ -371,6 +371,8 @@ def predict_videos(num_workers=20):
 
     # def process_video(video_name, files):
     # for video_name, files in dict(reversed(list(video_image_dict.items()))).items():
+    if args.reverse:
+        video_image_dict = dict(reversed(list(video_image_dict.items())))
     for video_name, files in video_image_dict.items():
         # tracker = BotSort(
         #     reid_weights=Path("osnet_x0_25_msmt17.pt"),
@@ -401,7 +403,7 @@ def predict_videos(num_workers=20):
         timer = Timer()
         results = []
 
-        batch_size = 20
+        batch_size = args.batch
         batches = [files[i: i + batch_size] for i in range(0, len(files), batch_size)]
         for batch_idx, batch_files in enumerate(batches):
             batch_outputs = []
@@ -460,4 +462,8 @@ def predict_videos(num_workers=20):
 
 
 if __name__ == '__main__':
-    predict_videos()
+    parser = argparse.ArgumentParser(description='Co-DETR video tracking')
+    parser.add_argument('--batch', type=int, default=1, help='batch size')
+    parser.add_argument('--reverse', action='store_true', help='reverse the order of videos')
+    args = parser.parse_args()
+    predict_videos(args)
