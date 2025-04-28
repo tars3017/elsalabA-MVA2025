@@ -360,14 +360,16 @@ def draw_top_boxes(image_path, prediction, output_path="output_with_boxes.jpg", 
 # draw_top_boxes(img, result, output_path="output_with_boxes.jpg", conf_thresh=0.2)
 
 def predict_videos(args):
-    res_folder = 'tracking_outputs'
+    res_folder = args.output
     if not os.path.exists(res_folder):
+        os.makedirs(res_folder)
+    if not os.path.exists(os.path.join(res_folder, 'pub_test')):
         os.makedirs(res_folder)
     if not os.path.exists('verify'):
         os.makedirs('verify')
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     predictor = Predictor(model, device=0, confthre=0.1)
-    video_image_dict = get_video_image_dict('../DQ-DETR/data/pub_test')
+    video_image_dict = get_video_image_dict(args.pub_test)
 
     # def process_video(video_name, files):
     # for video_name, files in dict(reversed(list(video_image_dict.items()))).items():
@@ -465,5 +467,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Co-DETR video tracking')
     parser.add_argument('--batch', type=int, default=1, help='batch size')
     parser.add_argument('--reverse', action='store_true', help='reverse the order of videos')
+    parser.add_argument('--pub_test', type=str, default='datasets/SMOT4SB/pub_test', help='path to the dataset')
+    parser.add_argument('--output', type=str, default='tracking_outputs', help='output folder')
     args = parser.parse_args()
     predict_videos(args)
