@@ -6,23 +6,29 @@ git clone git@github.com:tars3017/Co-DETR-MVA.git
 mv Co-DETR-MVA Co-DETR
 ```
 
-### Option 1 (conda env)
+## Checkpoint Download
+[Google Drive](https://drive.google.com/file/d/1BIGWAlvhNjMbQd6_5l7rzCXxI4oOz5AL/view?usp=sharing)
+Please place it under `vit-val/`
+
+### Setup conda env
 Recommend CUDA version: 11.3
+Single GPU Memory `>=10GB`
 
 ```bash
 conda create -n codetr python=3.7.11 -c pytorch -c conda-forge
 conda activate codetr
 ```
 
+Install `rust`
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 ```bash
 cd Co-DETR
+pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install .
 pip install mmcv-full==1.5.0 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11.0/index.html
-pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install loguru filterpy scikit-learn pandas gdown ftfy regex lap shapely pybboxes yapf==0.40.1
 ```
 

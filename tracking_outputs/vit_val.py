@@ -36,7 +36,8 @@ IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 config_file = 'cropped_inference/co_dino_5scale_vit_large_coco.py'
 # checkpoint_file = 'cropped/epoch_1.pth'
 # checkpoint_file = 'cropped3/epoch_2.pth'
-checkpoint_file = 'vit-val/epoch_1.pth'
+# checkpoint_file = 'vit-val/epoch_1.pth'
+checkpoint_file = 'models/vit_large_train_cropped_paste_2_epoch.pth'
 
 
 
