@@ -54,7 +54,7 @@ CUDA_VISIBLE_DEVICES=x bash tools/dist_test.sh  cropped/co_dino_5scale_vit_large
 - Adjust `batch_size` to meet gpu memory limit
 - Can add `--reverse` to inverse from the opposite sequence, so as to fasten the inference process
 ```bash
-CUDA_VISIBLE_DEVICES=x python tracking_outputs/vit_val.py --batch <batch_size> [--reverse]
+CUDA_VISIBLE_DEVICES=x python tracking_outputs/vit_val.py --batch <batch_size> --folder <folder_to_inference> [--reverse]
 ```
 
 ## Acknowledgement
