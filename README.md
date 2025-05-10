@@ -27,6 +27,7 @@ cd Co-DETR-MVA
 pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install .
 pip install mmcv-full==1.5.0 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11.0/index.html
+pip install loguru filterpy scikit-learn pandas gdown ftfy regex lap shapely pybboxes yapf==0.40.1
 ```
 
 <!-- ### Option 2 (Docker)
@@ -78,6 +79,7 @@ datasets/SMOT4SB/private_test
 ...
 ```
 - **Command**
+(Under main project folder, i.e. `Co-DETR-MVA/`)
 ```bash
 CUDA_VISIBLE_DEVICES=x python tracking_outputs/vit_val.py --batch <batch_size> --folder <folder_to_inference> [--reverse] --output <output_folder>
 ```
