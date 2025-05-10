@@ -55,7 +55,7 @@ gdown <file_id>
 > If `gdown` fails, maybe could use `rclone` or download manually.
 
 
-## Validating Detection Result
+## Validating Detection Result (Skip)
 ```bash
 CUDA_VISIBLE_DEVICES=x bash tools/dist_test.sh  cropped/co_dino_5scale_vit_large_coco.py <checkpoint_path> <gpu_count> --eval bbox
 ```
