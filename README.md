@@ -21,6 +21,7 @@ Install `rust`
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
+Install python packages
 ```bash
 cd Co-DETR-MVA
 pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
@@ -42,7 +43,7 @@ CUDA_VISIBLE_DEVICES=0 bash tools/dist_train.sh vit/co_dino_5scale_vit_large_coc
 ``` -->
 
 ## Checkpoint Download
-[Google Drive](https://drive.google.com/drive/folders/1i-LlXWHwdfIXPt7ICyhxUeD0L3R9EFy_?usp=drive_link)
+[Google Drive](https://drive.google.com/drive/folders/1i-LlXWHwdfIXPt7ICyhxUeD0L3R9EFy_?usp=drive_link) \
 Please place it at `models/full_cropped1_val1.pth`
 
 Command:
