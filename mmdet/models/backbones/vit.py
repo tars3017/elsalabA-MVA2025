@@ -107,6 +107,7 @@ class VisionRotaryEmbeddingFast(nn.Module):
 
 def get_rope(t, H, W):
     dim=32
+    # dim=40
     pt_seq_len=16
     custom_freqs = None
     freqs_for = 'lang'
@@ -651,12 +652,16 @@ class ViT(BaseModule):
             if list(state_dict.keys())[0].startswith('module.'):
                 state_dict = {k[7:]: v for k, v in state_dict.items()}
 
+            # print(f"state_dict.keys {state_dict.keys()}")
+            # patch_embed = state_dict['embeddings.patch_embeddings.projection.weight']
             patch_embed = state_dict['patch_embed.proj.weight']
             C_o, C_in, H, W = patch_embed.shape
             patch_embed = torch.nn.functional.interpolate(
                 patch_embed.float(), size=(16, 16), mode='bicubic', align_corners=False)
             state_dict['patch_embed.proj.weight'] = patch_embed
 
+            # if 'embeddings.position_embeddings' in state_dict:
+            #     pos_embed_checkpoint = state_dict['embeddings.position_embeddings']
             if 'pos_embed' in state_dict:
                 pos_embed_checkpoint = state_dict['pos_embed']
                 embedding_size = pos_embed_checkpoint.shape[-1]
@@ -678,6 +683,8 @@ class ViT(BaseModule):
                 pos_tokens = pos_tokens.permute(0, 2, 3, 1).flatten(1, 2)
                 new_pos_embed = torch.cat((extra_tokens, pos_tokens), dim=1)
                 state_dict['pos_embed'] = new_pos_embed
+            else:
+                logger.warn(f'No embeddings.position_embeddings in state_dict')
 
             # load state_dict
             msg = self.load_state_dict(state_dict, False)

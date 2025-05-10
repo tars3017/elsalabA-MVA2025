@@ -14,10 +14,11 @@ from loguru import logger
 from typing import Any, List, Optional
 
 
-co_detr_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(os.path.join(co_detr_path, 'Co-DETR'))
-sys.path.append(os.path.join(co_detr_path, 'Co-DETR', 'boxmot'))
-sys.path.append(os.path.join(co_detr_path, 'Co-DETR', 'sahi'))
+cur_folder = os.path.dirname(os.path.abspath(__file__))
+co_detr_path = os.path.dirname(cur_folder)
+sys.path.append(os.path.join(co_detr_path))
+sys.path.append(os.path.join(co_detr_path, 'boxmot'))
+sys.path.append(os.path.join(co_detr_path, 'sahi'))
 print(f"path = {sys.path}")
 from boxmot.trackers.botsort.botsort import BotSort
 from boxmot.trackers.boosttrack.boosttrack import BoostTrack
@@ -32,22 +33,8 @@ from mmdet.apis import init_detector, inference_detector
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
 
-# config_file = 'cropped_inference/co_dino_5scale_swin_large_3x_coco.py'
 config_file = 'cropped_inference/co_dino_5scale_vit_large_coco.py'
-# checkpoint_file = 'cropped/epoch_1.pth'
-# checkpoint_file = 'cropped3/epoch_2.pth'
-# checkpoint_file = 'vit-val/epoch_1.pth'
-checkpoint_file = 'models/vit_large_train_cropped_paste_2_epoch.pth'
-
-
-
-
-# img = '../MVA2025_elsaA/OC_SORT/datasets/cropped_images/train/00001_260_0_0_640_640.jpg'  # or img = mmcv.imread(img), which will only load it once
-# img = '00001.jpg'
-# result = inference_detector(model, img)
-
-# print(f"result {len(result)} {result[0].shape}")
-
+checkpoint_file = 'models/full_cropped1_val1.pth'
 
 def get_video_image_dict(root_path):
     video_image_dict = {}
@@ -88,8 +75,8 @@ class Predictor(object):
             prediction = get_sliced_prediction(
                 img_path,
                 self,
-                slice_height=1200,
-                slice_width=1200,
+                slice_height=640,
+                slice_width=640,
                 overlap_height_ratio=0.1,
                 overlap_width_ratio=0.1,
                 verbose=True,
@@ -105,18 +92,10 @@ class Predictor(object):
 
             list_output.append([bbox.minx, bbox.miny, bbox.maxx, bbox.maxy, score, category_id])
         list_output = np.array(list_output)
-        # list_output = np.expand_dims(list_output, axis=0)
-        # print(f"list_output shape {list_output.shape}")
 
-        # print(f"conf thre {self.confthre}")
         file_name = img_path.split('/')[-1]
-        # draw_top_boxes(img_path, list_output, output_path=f"./verify/output_{file_name}", conf_thresh=self.confthre)
-
-
-        # list_output = torch.from_numpy(list_output).to(self.device)
 
         return list_output
-        # return outputs, img_info
 
 
     def perform_inference(self, image: np.ndarray):
@@ -130,32 +109,6 @@ class Predictor(object):
         # Confirm model is loaded
         if self.model is None:
             raise ValueError("Model is not loaded, load it by calling .load_model()")
-
-
-        # if image.shape[1:3] != (640, 640):
-        #     self._original_predictions = torch.zeros((1, 0, 6)).to(self.device)
-        #     self._original_shape = image.shape
-        #     return
-
-        # print(f"image shape {image.shape}")
-        # convert (n, h, w, c) np image to n * (h, w, c) list
-        # image = np.split(image, image.shape[0], axis=0)
-        # print(f"image shape {list(image)}")
-        # print(f"image shape {image.shape}")
-
-        # for i in range(len(image)):
-        #     image[i] = cv2.cvtColor(image[i], cv2.COLOR_RGB2BGR)
-            # cv2.imwrite(f"verify/image_{i}.jpg", image[i])
-        # height, width = image.shape[1:3]
-        # convert np image to cv2 format
-        # image, ratio = preproc(image, (height, width), self.rgb_means, self.std)
-        # preproc_image = np.zeros((28, 3, 640, 640))
-        # for i in range(len(image)):
-            # preproc_image[i], ratio = preproc(image[i], (height, width), self.rgb_means, self.std)
-            # preproc_image[i] = image[2].transpose(2, 0, 1)
-            # cv2.imwrite(f"verify/image_{i}.jpg", preproc_image[i].transpose(1, 2, 0) * 144)
-        # image = torch.from_numpy(image).unsqueeze(0).float().to(self.device)
-        # image = torch.from_numpy(preproc_image).float().to(self.device)
         
         outputs = []
         with torch.no_grad():
@@ -166,8 +119,6 @@ class Predictor(object):
                 outputs.append(tmp)
         
         outputs = torch.from_numpy(np.array(outputs)).to(self.device)
-
-        
 
         self._original_predictions = outputs
         self._original_shape = image.shape
@@ -190,8 +141,6 @@ class Predictor(object):
             shift_amount_list=shift_amount,
             full_shape_list=full_shape,
         )
-        # if self.category_remapping:
-        #     self._apply_category_remapping()
 
     def _create_object_prediction_list_from_original_predictions(
         self,
@@ -459,7 +408,7 @@ def predict_videos(args):
                 if frame_id % 20 == 0:
                     logger.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
 
-        res_file = osp.join(res_folder, f"{video_name}.txt")
+        res_file = osp.join(res_folder, inference_folder, f"{video_name}.txt")
         with open(res_file, 'w') as f:
             f.writelines(results)
         logger.info(f"save results to {res_file}")

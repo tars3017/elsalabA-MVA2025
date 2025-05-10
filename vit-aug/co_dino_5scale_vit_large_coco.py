@@ -11,15 +11,8 @@ train_pipeline = [
         policies=[[{
             'type':
             'Resize',
-            'img_scale':
-            [(480, 1200), (512, 1200), (544, 1200), (576, 1200), (608, 1200),
-             (640, 1200), (672, 1200), (704, 1200), (736, 1200), (768, 1200),
-             (800, 1200), (832, 1200), (864, 1200), (896, 1200), (928, 1200),
-             (960, 1200), (992, 1200), (1024, 1200), (1056, 1200),
-             (1088, 1200), (1120, 1200), (1152, 1200), (1184, 1200),
-             (1216, 1200), (1248, 1200), (1280, 1200), (1312, 1200),
-             (1344, 1200), (1376, 1200), (1408, 1200), (1440, 1200),
-             (1472, 1200), (1504, 1200), (1536, 1200)],
+            'img_scale': [(480, 640), (512, 640), (544, 640), (576, 640),
+                          (608, 640)],
             'multiscale_mode':
             'value',
             'keep_ratio':
@@ -27,7 +20,7 @@ train_pipeline = [
         }],
                   [{
                       'type': 'Resize',
-                      'img_scale': [(400, 1200), (500, 1200), (600, 1200)],
+                      'img_scale': [(400, 640), (500, 640), (600, 640)],
                       'multiscale_mode': 'value',
                       'keep_ratio': True
                   }, {
@@ -38,18 +31,9 @@ train_pipeline = [
                   }, {
                       'type':
                       'Resize',
-                      'img_scale': [(480, 1200), (512, 1200), (544, 1200),
-                                    (576, 1200), (608, 1200), (640, 1200),
-                                    (672, 1200), (704, 1200), (736, 1200),
-                                    (768, 1200), (800, 1200), (832, 1200),
-                                    (864, 1200), (896, 1200), (928, 1200),
-                                    (960, 1200), (992, 1200), (1024, 1200),
-                                    (1056, 1200), (1088, 1200), (1120, 1200),
-                                    (1152, 1200), (1184, 1200), (1216, 1200),
-                                    (1248, 1200), (1280, 1200), (1312, 1200),
-                                    (1344, 1200), (1376, 1200), (1408, 1200),
-                                    (1440, 1200), (1472, 1200), (1504, 1200),
-                                    (1536, 1200)],
+                      'img_scale': [(480, 640), (512, 640), (544, 640),
+                                    (576, 640), (608, 640), (640, 640),
+                                    (672, 640), (704, 640), (736, 640)],
                       'multiscale_mode':
                       'value',
                       'override':
@@ -90,8 +74,8 @@ data = dict(
     workers_per_gpu=24,
     train=dict(
         type='CocoDataset',
-        ann_file='datasets/train_cropped_paste/annotations/train.json',
-        img_prefix='datasets/train_cropped_paste/train/',
+        ann_file='datasets/paste_birds3/annotations/train.json',
+        img_prefix='datasets/paste_birds3/train/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
@@ -99,29 +83,32 @@ data = dict(
             dict(
                 type='AutoAugment',
                 policies=[[{
+                    'type': 'RandomCrop',
+                    'crop_type': 'absolute_range',
+                    'crop_size': (640, 640),
+                    'recompute_bbox': True,
+                    'allow_negative_crop': True
+                }, {
                     'type': 'Resize',
                     'img_scale': [(640, 640)],
                     'multiscale_mode': 'value',
+                    'override': True,
                     'keep_ratio': True
-                }],
-                          [{
-                              'type': 'Resize',
-                              'img_scale': [(640, 640)],
-                              'multiscale_mode': 'value',
-                              'keep_ratio': True
-                          }, {
-                              'type': 'RandomCrop',
-                              'crop_type': 'absolute_range',
-                              'crop_size': (640, 640),
-                              'recompute_bbox': True,
-                              'allow_negative_crop': True
-                          }, {
-                              'type': 'Resize',
-                              'img_scale': [(640, 640)],
-                              'multiscale_mode': 'value',
-                              'override': True,
-                              'keep_ratio': True
-                          }]]),
+                }, {
+                    'type': 'RandomAffine'
+                }, {
+                    'type': 'ColorTransform',
+                    'level': 0.5,
+                    'prob': 0.5
+                }, {
+                    'type': 'BrightnessTransform',
+                    'level': 0.5,
+                    'prob': 0.5
+                }, {
+                    'type': 'ContrastTransform',
+                    'level': 0.5,
+                    'prob': 0.5
+                }]]),
             dict(
                 type='Normalize',
                 mean=[123.675, 116.28, 103.53],
@@ -179,7 +166,7 @@ data = dict(
                 ])
         ]))
 evaluation = dict(interval=1, metric='bbox')
-checkpoint_config = dict(interval=1)
+checkpoint_config = dict(interval=1000, by_epoch=False)
 log_config = dict(interval=1000, hooks=[dict(type='TextLoggerHook')])
 custom_hooks = [dict(type='ExpMomentumEMAHook', momentum=0.0001, priority=49)]
 dist_params = dict(backend='nccl')
@@ -442,14 +429,14 @@ model = dict(
             nms=dict(type='soft_nms', iou_threshold=0.6),
             max_per_img=100)
     ],
-    init_cfg=dict(type='Pretrained', checkpoint='models/full_cropped1_val1.pth'))
+    init_cfg=dict(type='Pretrained', checkpoint='vit-aug/full_cropped1.pth'))
 lr_config = dict(
     policy='step',
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.01,
     step=[2])
-runner = dict(type='EpochBasedRunner', max_epochs=10)
+runner = dict(type='EpochBasedRunner', max_epochs=1)
 optimizer_config = dict(grad_clip=dict(max_norm=0.1, norm_type=2))
 optimizer = dict(
     type='AdamW',
@@ -457,6 +444,6 @@ optimizer = dict(
     weight_decay=0.01,
     constructor='LayerDecayOptimizerConstructor',
     paramwise_cfg=dict(num_layers=24, layer_decay_rate=0.8))
-work_dir = 'vit'
+work_dir = 'vit-aug'
 auto_resume = False
 gpu_ids = range(0, 1)

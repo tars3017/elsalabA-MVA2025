@@ -131,8 +131,8 @@ def main():
     if args.eval and args.format_only:
         raise ValueError('--eval and --format_only cannot be both specified')
 
-    if args.out is not None and not args.out.endswith(('.pkl', '.pickle')):
-        raise ValueError('The output file must be a pkl file.')
+    # if args.out is not None and not args.out.endswith(('.pkl', '.pickle')):
+        # raise ValueError('The output file must be a pkl file.')
 
     cfg = Config.fromfile(args.config)
 
@@ -238,6 +238,7 @@ def main():
         model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
         outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
                                   args.show_score_thr)
+        print(f"outpus = {outputs}")
     else:
         model = build_ddp(
             model,
@@ -247,12 +248,32 @@ def main():
         outputs = multi_gpu_test(
             model, data_loader, args.tmpdir, args.gpu_collect
             or cfg.evaluation.get('gpu_collect', False))
+        print(f"outpus = {outputs}")
 
     rank, _ = get_dist_info()
     if rank == 0:
         if args.out:
-            print(f'\nwriting results to {args.out}')
-            mmcv.dump(outputs, args.out)
+            # Convert to COCO format
+            coco_results = []
+            for img_idx, dets in enumerate(outputs, 0):
+                img_id = dataset.img_ids[img_idx]
+                for det in dets:
+                    x1, y1, x2, y2, score = det
+                    width = x2 - x1
+                    height = y2 - y1
+                    result = {
+                        'image_id': img_id,
+                        'category_id': 1,
+                        'bbox': [x1, y1, width, height],
+                        'score': score,
+                    } 
+                    coco_results.append(result)
+
+            with open(args.out, 'w') as f:
+                json.dump(coco_results, f)
+
+            # print(f'\nwriting results to {args.out}')
+            # mmcv.dump(outputs, args.out)
         kwargs = {} if args.eval_options is None else args.eval_options
         if args.format_only:
             dataset.format_results(outputs, **kwargs)
