@@ -34,7 +34,7 @@ IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
 
 config_file = 'cropped_inference/co_dino_5scale_vit_large_coco.py'
-checkpoint_file = 'models/full_cropped1_val1.pth'
+checkpoint_file = 'models/full_cropped1.pth'
 
 def get_video_image_dict(root_path):
     video_image_dict = {}

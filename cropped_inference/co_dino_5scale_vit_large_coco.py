@@ -442,7 +442,7 @@ model = dict(
             nms=dict(type='soft_nms', iou_threshold=0.6),
             max_per_img=100)
     ],
-    init_cfg=dict(type='Pretrained', checkpoint='models/full_cropped1_val1.pth'))
+    init_cfg=dict(type='Pretrained', checkpoint='models/full_cropped1.pth'))
 lr_config = dict(
     policy='step',
     warmup='linear',
