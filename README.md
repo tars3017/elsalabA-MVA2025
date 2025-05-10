@@ -6,8 +6,8 @@ git clone git@github.com:tars3017/Co-DETR-MVA.git
 ```
 
 ### Setup conda env
-OS: Ubuntu 22.04.2 LTS
-Recommend CUDA version: 11.3
+OS: Ubuntu 22.04.2 LTS \
+Recommend CUDA version: 11.3 \
 Single GPU Memory (Inferece) `>=5GB`, but it will be slow.
 Recommend with memory `24GB`
 
