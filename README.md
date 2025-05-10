@@ -87,6 +87,7 @@ Example:
 CUDA_VISIBLE_DEVICES=0 python tracking_outputs/vit_val.py --batch 16 --folder datasets/SMOT4SB/pub_test --output tracking_outputs
 CUDA_VISIBLE_DEVICES=1 python tracking_outputs/vit_val.py --batch 16 --folder datasets/SMOT4SB/pub_test --reverse --output tracking_outputs
 ```
+Then these commands will place the outputs `txt` file under `tracking_outputs/pub_test`
 
 ## Acknowledgement
 This repository is mostly modified from [Co-DETR](https://github.com/Sense-X/Co-DETR.git), and include some of the code from [MVA2025-SMOT4SB](https://github.com/IIM-TTIJ/MVA2025-SMOT4SB), [sahi](https://github.com/obss/sahi), [boxmot](https://github.com/mikel-brostrom/boxmot), and work from MVA2023-SOD Challenge.
