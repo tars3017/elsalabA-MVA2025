@@ -313,7 +313,7 @@ def predict_videos(args):
     res_folder = args.output
     if not os.path.exists(res_folder):
         os.makedirs(res_folder, exist_ok=True)
-    inference_folder = args.folder.split('/')[-1]
+    inference_folder = os.path.basename(os.path.normpath(args.folder))
     if not os.path.exists(os.path.join(res_folder, inference_folder)):
         os.makedirs(os.path.join(res_folder, inference_folder), exist_ok=True)
     if not os.path.exists('verify'):
