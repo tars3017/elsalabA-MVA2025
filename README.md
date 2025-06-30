@@ -2,7 +2,7 @@
 
 Downlaod Repository
 ```bash
-git clone git@github.com:tars3017/Co-DETR-MVA.git
+https://github.com/tars3017/elsalabA-MVA2025
 ```
 
 ### Setup conda env
@@ -23,7 +23,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 Install python packages
 ```bash
-cd Co-DETR-MVA
+cd elsalabA-MVA2025
 pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install .
 pip install mmcv-full==1.5.0 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11.0/index.html
